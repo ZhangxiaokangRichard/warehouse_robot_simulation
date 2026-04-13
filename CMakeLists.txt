@@ -209,4 +209,8 @@ include_directories(
 
 add_executable(WarehouseSimulation src/WarehouseSimulation.cpp src/ModelController.cpp src/Product.cpp src/Storage.cpp src/Dispatch.cpp src/WarehouseObject.cpp src/Order.cpp src/OrderController.cpp src/Robot.cpp)
 target_link_libraries(WarehouseSimulation ${catkin_LIBRARIES} Threads::Threads)
+
+install(TARGETS WarehouseSimulation
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 #add_dependencies(WarehouseSimulation warehouse_robot_simulator_generate_messages_cpp)
