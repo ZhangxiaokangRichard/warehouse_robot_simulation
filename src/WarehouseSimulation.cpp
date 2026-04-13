@@ -254,6 +254,11 @@ int main(int argc, char **argv)
     // Create a Robot Object and configure it. Robot has to be already spawned in Gazebo and its AMCL node running properly
     robots.emplace_back(std::make_shared<Robot>("amr", "move_base", storages, dispatches, orderController));
 
+    // Wait for Gazebo spawn service before spawning warehouse objects
+    ROS_INFO("Waiting for gazebo/spawn_sdf_model service...");
+    ros::service::waitForService("gazebo/spawn_sdf_model");
+    ROS_INFO("gazebo/spawn_sdf_model service is ready, spawning warehouse objects...");
+
     // Spawn each Storage in simulation and start it's operation
     std::for_each(storages.begin(), storages.end(), [modelController](std::shared_ptr<Storage> &s)
                   {

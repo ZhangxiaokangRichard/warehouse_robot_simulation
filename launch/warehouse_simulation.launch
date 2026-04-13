@@ -1,7 +1,9 @@
 <launch>
 
   <!-- The GazeboSpawnObject node -->
-  <node name="WarehouseSimulation" type="WarehouseSimulation" pkg="warehouse_robot_simulation" output="screen">
+  <!-- Delay 5s to ensure Gazebo world is fully loaded before spawning warehouse objects -->
+  <node name="WarehouseSimulation" type="WarehouseSimulation" pkg="warehouse_robot_simulation" output="screen"
+        launch-prefix="bash -c 'sleep 5; exec &quot;$@&quot;' _">
   </node>
 
 </launch>
