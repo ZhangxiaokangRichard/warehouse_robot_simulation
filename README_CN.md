@@ -8,85 +8,142 @@
 
 # 依赖项
 
-该项目在Ubuntu 18.04.5 LTS上开发和运行。需要以下依赖/包：
+该项目在 **Ubuntu 20.04 LTS** 上开发和运行。需要以下依赖/包：
 
-- gcc/g++ >= 7.5.0
-- make >= 4.1
-- cmake >= 2.8
-- ROS Melodic
-- Gazebo 9.17.0
-- ROS Melodic 包：
+- gcc/g++ >= 9.0
+- make >= 4.2
+- cmake >= 3.16
+- ROS Noetic
+- Gazebo 11
+- RViz
+- ROS Noetic 包：
     - amcl
     - move_base
+    - dwa-local-planner
     - map_server
-    - gmapping（可选）
-    - teleop_twist_keyboard（可选）
+    - gmapping（可选，仅用于重新建图）
+    - teleop_twist_keyboard（可选，仅用于手动建图）
 
 # 安装
 
-假设你的catkin工作空间`catkin_ws`位于`~/`目录，在工作空间的src文件夹中克隆此存储库：
+## 1. 检查并安装 ROS Noetic
 
+如果尚未安装 ROS Noetic，请参考 [ROS Noetic 安装指南](http://wiki.ros.org/noetic/Installation/Ubuntu)。
+
+验证安装：
+```bash
+rosversion -d
+# 应输出: noetic
 ```
-cd ~/catkin_ws/src
-git clone https://github.com/rodriguesrenato/warehouse_robot_simulation.git
+
+## 2. 检查并安装 Gazebo 11
+
+ROS Noetic 默认配套 Gazebo 11，通常随 `ros-noetic-desktop-full` 一同安装。
+
+验证安装：
+```bash
+gazebo --version
+# 应输出: Gazebo multi-robot simulator, version 11.x.x
 ```
 
-- 可选：如果你计划构建和映射此模拟的新地图，请同时克隆以下存储库：
-    ```
-    git clone https://github.com/ros-perception/slam_gmapping.git
-    git clone https://github.com/ros-teleop/teleop_twist_keyboard
-    ```
-
-也可以通过**apt-get**在当前ROS安装中安装*必需*和*可选*的库（确保根据你的ROS版本调整以下命令）：
-
+如未安装，执行：
+```bash
+sudo apt-get update
+sudo apt-get install gazebo11 libgazebo11-dev
+sudo apt-get install ros-noetic-gazebo-ros-pkgs ros-noetic-gazebo-ros-control
 ```
+
+## 3. 检查并安装 RViz
+
+验证安装：
+```bash
+rosrun rviz rviz --version
+# 应输出版本号，如: 1.14.x
+```
+
+如未安装，执行：
+```bash
+sudo apt-get install ros-noetic-rviz
+```
+
+## 4. 安装 ROS 依赖包
+
+通过 **apt-get** 安装必需和可选的 ROS 包：
+
+```bash
 sudo apt-get install ros-noetic-amcl
 sudo apt-get install ros-noetic-move-base
 sudo apt-get install ros-noetic-dwa-local-planner
 sudo apt-get install ros-noetic-map-server
-sudo apt-get install ros-noetic-teleop-twist-keyboard 
+sudo apt-get install ros-noetic-teleop-twist-keyboard
 sudo apt-get install ros-noetic-gmapping
 sudo apt-get install ros-noetic-slam-gmapping
 ```
 
-- 注意：如果选择了不同的项目目录，则需要在编译前手动更改`src/warehouseSimulation.cpp`文件中的`projectDirectory`值。假设ROS在`~/.ros`中执行节点以使用相对路径。
+## 5. 克隆并编译项目
 
-然后编译并source它：
+假设你的 catkin 工作空间 `catkin_ws` 位于 `~/` 目录，在 src 文件夹中克隆此存储库：
 
+```bash
+cd ~/catkin_ws/src
+git clone https://github.com/rodriguesrenato/warehouse_robot_simulation.git
 ```
+
+- 可选：如果你计划为此模拟构建新地图，请同时克隆以下存储库：
+    ```bash
+    git clone https://github.com/ros-perception/slam_gmapping.git
+    git clone https://github.com/ros-teleop/teleop_twist_keyboard
+    ```
+
+- 注意：如果选择了不同的项目目录，则需要在编译前手动更改 `src/WarehouseSimulation.cpp` 文件中的 `projectDirectory` 值（默认相对于 `~/.ros/`）。
+
+编译并 source：
+
+```bash
 cd ~/catkin_ws
 catkin_make
 source devel/setup.bash
 ```
 
-**Xterm**用于单独执行启动文件。如果未安装，请运行：
+## 6. 安装 Xterm 并设置脚本权限
 
-```
+**Xterm** 用于在独立终端窗口中执行各启动文件。如果未安装，请运行：
+
+```bash
 sudo apt-get install xterm
 ```
 
-最后，在运行脚本前使脚本文件可执行：
+使脚本文件可执行：
 
-```
+```bash
 cd ~/catkin_ws/src/warehouse_robot_simulation/scripts
 chmod +x *.sh
 ```
 
 # 使用方法
 
-运行模拟有两个选项：
+运行模拟有以下选项：
 
-- 在`scripts`文件夹中打开终端并运行`warehouse_simulation.sh`：
+- **推荐**：在 `scripts` 文件夹中打开终端并运行 `mission.sh`，它会按正确启动顺序在独立 xterm 窗口中依次启动所有节点，并自动发布初始订单：
 
+    ```bash
+    cd ~/catkin_ws/src/warehouse_robot_simulation/scripts
+    ./mission.sh
     ```
-    ./warehouse_simulation.sh
-    ``` 
 
-- 或按指定顺序启动以下`.launch`文件：
+    各步骤启动顺序如下：
+    1. `world.launch`：启动 Gazebo 并加载 `warehouse.world`（含动态障碍物）
+    2. `robot_spawner.launch`（等待 10s 后）：在仿真中生成机器人
+    3. `amcl.launch`（等待 7s 后）：启动 AMCL 定位和 move_base 导航
+    4. `warehouse_simulation.launch`（等待 7s 后）：启动仓库任务节点
+    5. 自动发布初始订单（等待 10s 后）
+    6. `view_navigation.launch`（等待 3s 后）：启动 RViz 可视化（可选）
 
-    1. `roslaunch warehouse_robot_simulation world.launch`：启动Gazebo并加载`warehouse.world`文件。
+- 或按指定顺序手动启动各 `.launch` 文件：
+
+    1. `roslaunch warehouse_robot_simulation world.launch`：启动 Gazebo 并加载 `warehouse.world` 文件。
     2. `roslaunch warehouse_robot_simulation robot_spawner.launch`：在模拟中生成机器人。
-    3. `roslaunch warehouse_robot_simulation amcl.launch`：启动AMCL和move_base节点。
+    3. `roslaunch warehouse_robot_simulation amcl.launch`：启动 AMCL 和 move_base 节点。
     4. `roslaunch warehouse_robot_simulation warehouse_simulation.launch`：启动仓库模拟。
 
 与模拟交互的唯一方式是通过ROS话题`/warehouse/order/add`发布`订单`消息。`订单`消息将被正在运行的`OrderController`接收。
