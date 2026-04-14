@@ -39,13 +39,13 @@
     <param name="barriers/barrier_2/diameter" value="0.1"/>
     <param name="barriers/barrier_2/height" value="0.8"/>
     <param name="barriers/barrier_2/speed" value="0.25"/>
-    <param name="barriers/barrier_2/start_position/x" value="2.0"/>
+    <param name="barriers/barrier_2/start_position/x" value="1.5"/>
     <param name="barriers/barrier_2/start_position/y" value="1.0"/>
     <rosparam param="barriers/barrier_2/path">
-      - [ 2.0, 1.0]
+      - [ 1.5, 1.0]
       - [ 4.0, 1.0]
       - [ 4.0, -1.0]
-      - [ 2.0, -1.0]
+      - [ 1.5, -1.0]
     </rosparam>
 
     <!-- Barrier 3: Patrols the left aisle -->

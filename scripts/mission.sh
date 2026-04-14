@@ -23,4 +23,4 @@ xterm -e "source /opt/ros/noetic/setup.bash; source ~/catkin_ws/devel/setup.bash
 sleep 3
 
 # 6. (Optional) Start RViz for visualization
-# xterm -e "source /opt/ros/noetic/setup.bash; source ~/catkin_ws/devel/setup.bash; roslaunch warehouse_robot_simulation view_navigation.launch" &
+xterm -e "source /opt/ros/noetic/setup.bash; source ~/catkin_ws/devel/setup.bash; roslaunch warehouse_robot_simulation view_navigation.launch" &
