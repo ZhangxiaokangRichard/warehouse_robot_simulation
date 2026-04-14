@@ -116,12 +116,6 @@ catkin_make
 ### 3. 克隆本项目
 
 ```bash
-cd ~/catkin_ws/src
-git clone https://github.com/rodriguesrenato/warehouse_robot_simulation.git
-```
-
-或从你的 fork 克隆：
-```bash
 git clone https://github.com/YOUR_USERNAME/warehouse_robot_simulation.git
 ```
 
